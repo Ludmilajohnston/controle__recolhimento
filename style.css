@@ -1,0 +1,632 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  background: #ffffff;
+  padding: 10px;
+}
+
+/* =========================
+   AREA PDF
+========================= */
+
+.folha,
+#areaPDF {
+  width: 200mm;
+  margin: auto;
+  background: #fff;
+}
+
+/* =========================
+   FORMULARIOS
+========================= */
+
+.modelo,
+.pagina {
+  width: 175mm;
+  background: #fff;
+  border: 1px solid #000;
+  padding: 3px;
+  margin: 0 auto 6px auto;
+  overflow: hidden;
+  page-break-inside: avoid;
+}
+
+/* =========================
+   TABELAS
+========================= */
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+td,
+th {
+  border: 1px solid #000;
+}
+
+/* =========================
+   CABECALHO
+========================= */
+
+.cabecalho {
+  margin-bottom: 0;
+}
+
+.logo-td {
+  width: 90px;
+  text-align: center;
+}
+
+.logo {
+  width: 82px;
+}
+
+.titulo {
+  text-align: center;
+  font-size: 11px;
+  font-weight: bold;
+  letter-spacing: 0.2px;
+}
+
+/* =========================
+   DADOS
+========================= */
+
+.dados td {
+  height: 22px;
+  vertical-align: top;
+  padding: 2px 4px;
+}
+
+label {
+  display: block;
+  font-size: 8px;
+  font-weight: bold;
+  margin-bottom: 2px;
+}
+
+.dados input {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 9px;
+}
+
+/* =========================
+   PRODUTOS
+========================= */
+
+.produtos {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+
+/* COLUNAS */
+
+.produtos col:nth-child(1) { width: 10%; }
+.produtos col:nth-child(2) { width: 25%; }
+.produtos col:nth-child(3) { width: 7%; }
+.produtos col:nth-child(4) { width: 8%; }
+.produtos col:nth-child(5) { width: 10%; }
+.produtos col:nth-child(6) { width: 8%; }
+.produtos col:nth-child(7) { width: 16%; }
+.produtos col:nth-child(8) { width: 16%; }
+
+/* CABEÇALHO */
+
+.produtos thead tr:first-child th {
+  background: #efefef;
+  font-size: 9px;
+  height: 20px;
+  text-align: center;
+}
+
+.produtos thead tr:nth-child(2) th {
+  background: #f7f7f7;
+  font-size: 8px;
+  height: 24px;
+  text-align: center;
+}
+
+/* CELULAS */
+
+.produtos td {
+  height: 18px;
+  padding: 2px;
+  font-size: 8px;
+}
+
+/* INPUTS */
+
+.produtos input,
+.produtos select {
+  width: 100%;
+  height: 18px;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 8px;
+}
+
+/* TEXTO */
+
+.produtos th,
+.produtos td {
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+/* TOTAL */
+
+.total-produto {
+  font-size: 9px;
+}
+
+.total-final {
+  text-align: center;
+  font-size: 9px;
+  font-weight: bold;
+}
+
+/* =========================
+   BOTOES
+========================= */
+
+.btn-add {
+  margin-top: 4px;
+  padding: 2px 7px;
+  font-size: 9px;
+  cursor: pointer;
+  background: #fff;
+  color: #000;
+  border: 1px solid #000;
+  border-radius: 3px;
+}
+
+.btn-add:hover {
+  background: #eee;
+}
+
+.btn-limpar {
+  margin-top: 4px;
+  padding: 2px 7px;
+  font-size: 9px;
+  cursor: pointer;
+  background: #fff;
+  color: #000;
+  border: 1px solid #000;
+  border-radius: 3px;
+}
+
+.btn-limpar:hover {
+  background: #eee;
+}
+
+.btn-remover {
+  background: #fff;
+  color: #000;
+  border: 1px solid #000;
+  border-radius: 2px;
+  cursor: pointer;
+  font-size: 7px;
+  padding: 1px 3px;
+  width: 100%;
+}
+
+.btn-remover:hover {
+  background: #eee;
+}
+
+/* =========================
+   ASSINATURAS
+========================= */
+
+.assinaturas {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.assinatura-box {
+  width: 24%;
+  text-align: center;
+}
+
+.assinatura-topo {
+  height: 14px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+}
+
+.assinatura-img {
+  width: 80px;
+}
+
+.linha {
+  border-top: 1px solid #000;
+  margin-top: 2px;
+}
+
+.assinatura-box span {
+  display: block;
+  margin-top: 2px;
+  font-size: 7px;
+  font-weight: bold;
+}
+
+.data-assinatura {
+  margin-top: 2px;
+}
+
+.data-assinatura input {
+  width: 70px;
+  border: none;
+  border-bottom: 1px solid #000;
+  outline: none;
+  background: transparent;
+  text-align: center;
+  font-size: 7px;
+  padding: 2px 0;
+}
+
+.data-assinatura input::placeholder {
+  color: #999;
+  font-size: 6px;
+  letter-spacing: 1px;
+}
+
+/* =========================
+   CALENDÁRIO - DATA VENDEDORA
+========================= */
+
+.data-vendedora {
+  width: 70px;
+  border: none;
+  border-bottom: 1px solid #000;
+  outline: none;
+  background: transparent;
+  text-align: center;
+  font-size: 7px;
+  padding: 2px 0;
+  cursor: pointer;
+  color: #000;
+}
+
+.data-vendedora::-webkit-calendar-picker-indicator {
+  opacity: 0.5;
+  padding: 2px;
+  cursor: pointer;
+}
+
+.data-vendedora::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+.data-vendedora:valid { color: #000; }
+.data-vendedora:invalid { color: #999; }
+
+/* =========================
+   RODAPE
+========================= */
+
+.rodape {
+  text-align: center;
+  font-size: 5px;
+  margin-top: 4px;
+}
+
+/* =========================
+   PDF BOTAO
+========================= */
+
+.acoes {
+  text-align: center;
+  margin: 20px 0;
+}
+
+.btn-pdf {
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  background: #fff;
+  color: #000;
+  border: 2px solid #000;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+.btn-pdf:hover {
+  background: #eee;
+}
+
+.btn-pdf:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* =========================
+   ADICIONAR FORMULARIO
+========================= */
+
+.acoes-extras {
+  text-align: center;
+  margin: 10px 0 0 0;
+}
+
+.btn-add-form {
+  padding: 6px 14px;
+  font-size: 12px;
+  cursor: pointer;
+  background: #fff;
+  color: #000;
+  border: 1px solid #000;
+  border-radius: 4px;
+}
+
+.btn-add-form:hover {
+  background: #eee;
+}
+
+/* =========================
+   IMPRESSAO - ESCONDE BOTOES NO PDF
+========================= */
+
+@media print {
+  body {
+    background: #fff;
+    padding: 0;
+  }
+
+  .acoes,
+  .acoes-extras,
+  .btn-pdf,
+  .btn-add,
+  .btn-limpar,
+  .btn-remover,
+  button {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    width: 0 !important;
+    height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    position: absolute !important;
+    left: -9999px !important;
+    top: -9999px !important;
+  }
+
+  .produtos td:last-child {
+    border: 1px solid #000;
+    empty-cells: show;
+  }
+
+  .modelo {
+    page-break-inside: avoid;
+    page-break-after: always;
+    border: 1px solid #000;
+    margin: 0 auto 6px auto;
+  }
+
+  .produtos thead tr:first-child th,
+  .produtos thead tr:nth-child(2) th {
+    background: #efefef !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .total-final {
+    background: #e9ecef !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .dados input,
+  .produtos input,
+  .produtos select,
+  .data-assinatura input {
+    border: 1px solid #000;
+    background: transparent !important;
+  }
+
+  .assinatura-img {
+    max-height: 40px;
+  }
+
+  .folha,
+  #areaPDF {
+    width: 100%;
+    margin: 0;
+  }
+
+  .data-vendedora {
+    border: 1px solid #000;
+    background: transparent !important;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+}
+
+/* =========================
+   CELULAR
+========================= */
+
+@media (max-width: 768px) {
+  body {
+    padding: 4px;
+    overflow-x: hidden;
+  }
+
+  .folha,
+  #areaPDF {
+    width: 100%;
+  }
+
+  .modelo,
+  .pagina {
+    width: 100%;
+    margin-bottom: 15px;
+    padding: 3px;
+  }
+
+  .logo {
+    width: 50px;
+  }
+
+  .logo-td {
+    width: 55px;
+  }
+
+  .titulo {
+    font-size: 8px;
+  }
+
+  label {
+    font-size: 7px;
+  }
+
+  .dados input {
+    font-size: 9px;
+    padding: 2px 0;
+  }
+
+  /* Tabela de produtos scrollável no celular */
+  .table-scroll-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+    border: 1px solid #ccc;
+    margin-bottom: 2px;
+  }
+
+  .table-scroll-wrapper .produtos {
+    min-width: 560px;
+    table-layout: fixed;
+  }
+
+  .produtos th {
+    font-size: 7px;
+  }
+
+  .produtos td {
+    font-size: 7px;
+  }
+
+  .produtos input,
+  .produtos select {
+    font-size: 9px;
+    height: 22px;
+  }
+
+  .assinaturas {
+    gap: 4px;
+    margin-top: 18px;
+  }
+
+  .assinatura-img {
+    width: 50px;
+  }
+
+  .assinatura-box span {
+    font-size: 6px;
+  }
+
+  .data-assinatura input {
+    width: 55px;
+    font-size: 6px;
+  }
+
+  .data-assinatura input::placeholder {
+    font-size: 5px;
+  }
+
+  .data-vendedora {
+    width: 55px;
+    font-size: 6px;
+  }
+
+  .rodape {
+    font-size: 5px;
+  }
+
+  .btn-add,
+  .btn-limpar {
+    font-size: 8px;
+    padding: 2px 6px;
+    margin-top: 4px;
+  }
+
+  .btn-pdf {
+    width: 100%;
+    font-size: 14px;
+  }
+
+  .btn-remover {
+    font-size: 7px;
+    padding: 1px 2px;
+  }
+
+  .btn-add-form {
+    width: 100%;
+    font-size: 12px;
+  }
+
+  /* Autocomplete nativo maior no mobile */
+  input[list] {
+    font-size: 16px !important; /* evita zoom no iOS */
+  }
+}
+
+/* =========================
+   DROPDOWN BUSCA CUSTOMIZADO
+========================= */
+
+.dropdown-lista {
+  background: #fff;
+  border: 1px solid #000;
+  max-height: 220px;
+  overflow-y: auto;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  border-radius: 3px;
+}
+
+.dropdown-item {
+  padding: 10px 12px;
+  font-size: 13px;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+  line-height: 1.3;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+.dropdown-item:last-child {
+  border-bottom: none;
+}
+
+.dropdown-item:hover,
+.dropdown-item:active {
+  background: #f0f0f0;
+}
+
+@media (max-width: 768px) {
+  .dropdown-lista {
+    max-height: 180px;
+  }
+  .dropdown-item {
+    padding: 12px 14px;
+    font-size: 14px;
+  }
+}

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Controle de Recolhimento</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icons/icon-192.jpg">
+  <meta name="theme-color" content="#ffffff">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+
+<body>
+
+  <!-- AREA PDF -->
+  <div class="folha" id="areaPDF">
+    <!-- Formulários são adicionados dinamicamente pelo JS -->
+  </div>
+
+  <!-- BOTOES EXTERNOS -->
+  <div class="acoes-extras">
+    <button class="btn-add-form" onclick="adicionarFormulario()">+ Adicionar Formulário</button>
+  </div>
+  <div class="acoes">
+    <button class="btn-pdf" onclick="gerarPDF()">GERAR PDF</button>
+  </div>
+
+  <datalist id="listaProdutos"></datalist>
+  <datalist id="listaLojas"></datalist>
+
+  <script src="script.js"></script>
+
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("./sw.js");
+    }
+  </script>
+
+</body>
+</html>
