@@ -1,5 +1,5 @@
 /* =========================
-   PRODUTOS
+   PRODUTOS E LOJAS
 ========================= */
 
 var produtos = {
@@ -64,10 +64,6 @@ var produtos = {
   "2893": "FARINHA ROSCA PULLMAN 500G"
 };
 
-/* =========================
-   LOJAS
-========================= */
-
 var lojas = {
   "180056": "548-MIX MATEUS MAGUARI",
   "180050": "531-MIX MATEUS MARITUBA",
@@ -110,30 +106,52 @@ var lojas = {
 };
 
 /* =========================
-   DROPDOWN CUSTOMIZADO
+   DROPDOWN
 ========================= */
 
 var dropdownAtivo = null;
+var inputDropdownAtivo = null;
 
 function fecharTodosDropdowns() {
   var abertos = document.querySelectorAll(".dropdown-lista");
-  for (var i = 0; i < abertos.length; i++) {
-    abertos[i].remove();
-  }
+  for (var i = 0; i < abertos.length; i++) abertos[i].remove();
   dropdownAtivo = null;
+  inputDropdownAtivo = null;
 }
 
-document.addEventListener("click", function(e) {
-  if (!e.target.classList.contains("campo-busca")) {
+document.addEventListener("touchstart", function(e) {
+  if (dropdownAtivo && !dropdownAtivo.contains(e.target) && e.target !== inputDropdownAtivo) {
+    fecharTodosDropdowns();
+  }
+}, { passive: true });
+
+document.addEventListener("mousedown", function(e) {
+  if (dropdownAtivo && !dropdownAtivo.contains(e.target) && e.target !== inputDropdownAtivo) {
     fecharTodosDropdowns();
   }
 });
 
-document.addEventListener("touchstart", function(e) {
-  if (!e.target.classList.contains("campo-busca") && !e.target.classList.contains("dropdown-item")) {
-    fecharTodosDropdowns();
+function posicionarDropdown(lista, input) {
+  var rect = input.getBoundingClientRect();
+  var spaceBelow = window.innerHeight - rect.bottom;
+  var spaceAbove = rect.top;
+  var maxH = 220;
+
+  lista.style.position = "fixed";
+  lista.style.left = rect.left + "px";
+  lista.style.width = Math.max(rect.width, 280) + "px";
+  lista.style.zIndex = "99999";
+
+  if (spaceBelow < maxH && spaceAbove > spaceBelow) {
+    lista.style.bottom = (window.innerHeight - rect.top) + "px";
+    lista.style.top = "auto";
+    lista.style.maxHeight = Math.min(spaceAbove - 8, maxH) + "px";
+  } else {
+    lista.style.top = rect.bottom + "px";
+    lista.style.bottom = "auto";
+    lista.style.maxHeight = Math.min(spaceBelow - 8, maxH) + "px";
   }
-}, { passive: true });
+}
 
 function mostrarDropdown(input, resultados, aoSelecionar) {
   fecharTodosDropdowns();
@@ -142,27 +160,49 @@ function mostrarDropdown(input, resultados, aoSelecionar) {
   var lista = document.createElement("div");
   lista.className = "dropdown-lista";
 
-  // Posiciona abaixo do input
-  var rect = input.getBoundingClientRect();
-  lista.style.position = "fixed";
-  lista.style.top = (rect.bottom + window.scrollY) + "px";
-  lista.style.left = rect.left + "px";
-  lista.style.width = Math.max(rect.width, 260) + "px";
-  lista.style.zIndex = "9999";
-
   for (var i = 0; i < resultados.length; i++) {
     (function(item) {
       var div = document.createElement("div");
       div.className = "dropdown-item";
       div.textContent = item.codigo + " — " + item.nome;
 
-      div.addEventListener("mousedown", function(e) {
-        e.preventDefault();
-        aoSelecionar(item);
-        fecharTodosDropdowns();
-      });
+      // CONTROLE DE TOQUE PARA EVITAR SELEÇÃO ACIDENTAL NO SCROLL
+      var touchMoved = false;
+      var touchStarted = false;
+
+      div.addEventListener("touchstart", function(e) {
+        touchMoved = false;
+        touchStarted = true;
+        // Guarda a posição inicial para detectar scroll
+        var touch = e.touches[0];
+        div._startX = touch.clientX;
+        div._startY = touch.clientY;
+      }, { passive: true });
+
+      div.addEventListener("touchmove", function(e) {
+        if (!touchStarted) return;
+        var touch = e.touches[0];
+        var dx = Math.abs(touch.clientX - div._startX);
+        var dy = Math.abs(touch.clientY - div._startY);
+        // Se moveu mais de 10px, é scroll, não clique
+        if (dx > 10 || dy > 10) {
+          touchMoved = true;
+        }
+      }, { passive: true });
 
       div.addEventListener("touchend", function(e) {
+        if (!touchStarted) return;
+        touchStarted = false;
+        // SÓ SELECIONA SE NÃO HOUVE SCROLL (movimento menor que 10px)
+        if (!touchMoved) {
+          e.preventDefault();
+          aoSelecionar(item);
+          fecharTodosDropdowns();
+        }
+      }, { passive: false });
+
+      // PARA MOUSE (Desktop)
+      div.addEventListener("mousedown", function(e) {
         e.preventDefault();
         aoSelecionar(item);
         fecharTodosDropdowns();
@@ -173,25 +213,22 @@ function mostrarDropdown(input, resultados, aoSelecionar) {
   }
 
   document.body.appendChild(lista);
+  posicionarDropdown(lista, input);
   dropdownAtivo = lista;
+  inputDropdownAtivo = input;
 }
 
 function buscarNoDicionario(texto, dicionario) {
   var resultados = [];
   var t = texto.trim().toUpperCase();
   if (t.length < 1) return resultados;
-
   for (var key in dicionario) {
     if (!dicionario.hasOwnProperty(key)) continue;
     var nome = dicionario[key].toUpperCase();
-    // Código exato começa por
-    var codigoMatch = key.toUpperCase().indexOf(t) === 0;
-    // Nome contém
-    var nomeMatch = nome.indexOf(t) !== -1;
-    if (codigoMatch || nomeMatch) {
+    if (key.toUpperCase().indexOf(t) === 0 || nome.indexOf(t) !== -1) {
       resultados.push({ codigo: key, nome: dicionario[key] });
     }
-    if (resultados.length >= 8) break;
+    if (resultados.length >= 10) break;
   }
   return resultados;
 }
@@ -202,67 +239,44 @@ function buscarNoDicionario(texto, dicionario) {
 
 var totalFormularios = 0;
 
-/* =========================
-   INICIAR
-========================= */
-
 document.addEventListener("DOMContentLoaded", function() {
   setTimeout(function() {
     adicionarFormulario();
     restaurarDados();
-
-    document.addEventListener("input", function() {
-      salvarDados();
-    });
-
-    window.addEventListener("beforeunload", function() {
-      salvarDados();
-    });
-  }, 50);
+    document.addEventListener("input", salvarDados);
+    window.addEventListener("beforeunload", salvarDados);
+  }, 100);
 });
 
 /* =========================
-   CRIAR FORMULÁRIO HTML
+   HTML DO FORMULÁRIO
 ========================= */
 
 function criarHTMLFormulario(id) {
   return '<div class="modelo" data-form-id="' + id + '">' +
-
     '<table class="cabecalho"><tr>' +
-    '<td class="logo-td"><img src="./logo.png" class="logo"></td>' +
+    '<td class="logo-td"><img src="./logo.png" class="logo" alt="Logo"></td>' +
     '<td class="titulo">CONTROLE DE RECOLHIMENTO DE MERCADORIAS</td>' +
     '</tr></table>' +
-
     '<table class="dados">' +
     '<tr>' +
-    '<td>' +
-      '<label>CODIGO DO CLIENTE:</label>' +
-      '<input type="text" class="campo-busca campo-loja" autocomplete="off" placeholder="Digite código ou nome">' +
-    '</td>' +
-    '<td>' +
-      '<label>DATA DO RECOLHIMENTO:</label>' +
-      '<input type="text" class="data-br" inputmode="numeric">'+
-    '</td>' +
+    '<td><label>CODIGO DO CLIENTE:</label>' +
+    '<input type="text" class="campo-busca campo-loja" autocomplete="off" placeholder="Digite código ou nome"></td>' +
+    '<td><label>DATA DO RECOLHIMENTO:</label>' +
+    '<input type="text" class="data-br" inputmode="numeric"</td>' +
     '</tr>' +
     '<tr>' +
-    '<td>' +
-      '<label>NOME DO CLIENTE:</label>' +
-      '<input type="text" class="nome-loja" readonly tabindex="-1">' +
-    '</td>' +
-    '<td>' +
-      '<label>NOTA FISCAL DEVOLUÇÃO:</label>' +
-      '<input type="text" inputmode="numeric">' +
-    '</td>' +
+    '<td><label>NOME DO CLIENTE:</label>' +
+    '<input type="text" class="nome-loja" readonly tabindex="-1"></td>' +
+    '<td><label>NOTA FISCAL DEVOLUÇÃO:</label>' +
+    '<input type="text" inputmode="text"></td>' +
     '</tr>' +
     '<tr>' +
     '<td></td>' +
-    '<td>' +
-      '<label>NOTA FISCAL ORIGEM:</label>' +
-      '<input type="text" inputmode="numeric">' +
-    '</td>' +
+    '<td><label>NOTA FISCAL ORIGEM:</label>' +
+    '<input type="text" inputmode="text"></td>' +
     '</tr>' +
     '</table>' +
-
     '<div class="table-scroll-wrapper">' +
     '<table class="produtos">' +
     '<colgroup><col><col><col><col><col><col><col><col></colgroup>' +
@@ -279,51 +293,39 @@ function criarHTMLFormulario(id) {
     '<td class="total-produto">R$ 0,00</td>' +
     '<td><select><option>M1</option><option>M2</option><option>M3</option></select></td>' +
     '<td><input type="text"></td>' +
-    '<td><input type="text"></td>' +
+    '<td><button class="btn-remover" onclick="removerLinha(this)">✕</button></td>' +
     '</tr>' +
-    '<tr>' +
-    '<td colspan="4"></td>' +
+    '<tr><td colspan="4"></td>' +
     '<td class="total-final valor-total">R$ 0,00</td>' +
-    '<td colspan="3"></td>' +
-    '</tr>' +
+    '<td colspan="3"></td></tr>' +
     '</tbody>' +
     '</table>' +
     '</div>' +
-
     '<button class="btn-add no-print" onclick="adicionarLinha(this)">+ Produto</button> ' +
     '<button class="btn-limpar no-print" onclick="limparFormulario(this)">✕ Limpar</button>' +
     (id > 1 ? ' <button class="btn-limpar no-print" onclick="removerFormulario(this)">✕ Remover</button>' : '') +
-
     '<div class="assinaturas">' +
     '<div class="assinatura-box">' +
-    '<div class="assinatura-topo"><img src="./assinatura.png" class="assinatura-img"></div>' +
+    '<div class="assinatura-topo"><img src="./assinatura.png" class="assinatura-img" alt="Assinatura"></div>' +
     '<div class="linha"></div><span>VENDEDORA</span>' +
     '<div class="data-assinatura"><input type="date" class="data-vendedora"></div>' +
     '</div>' +
-    '<div class="assinatura-box">' +
-    '<div class="assinatura-topo"></div>' +
+    '<div class="assinatura-box"><div class="assinatura-topo"></div>' +
     '<div class="linha"></div><span>MOTORISTA</span>' +
-    '<div class="data-assinatura"><input type="text" placeholder="_____________"></div>' +
-    '</div>' +
-    '<div class="assinatura-box">' +
-    '<div class="assinatura-topo"></div>' +
+    '<div class="data-assinatura"><input type="text" placeholder="_____________"></div></div>' +
+    '<div class="assinatura-box"><div class="assinatura-topo"></div>' +
     '<div class="linha"></div><span>CONFERENTE ARMAZEM</span>' +
-    '<div class="data-assinatura"><input type="text" placeholder="_____________"></div>' +
-    '</div>' +
-    '<div class="assinatura-box">' +
-    '<div class="assinatura-topo"></div>' +
+    '<div class="data-assinatura"><input type="text" placeholder="_____________"></div></div>' +
+    '<div class="assinatura-box"><div class="assinatura-topo"></div>' +
     '<div class="linha"></div><span>COORD. ARMAZEM</span>' +
-    '<div class="data-assinatura"><input type="text" placeholder="_____________"></div>' +
+    '<div class="data-assinatura"><input type="text" placeholder="_____________"></div></div>' +
     '</div>' +
-    '</div>' +
-
     '<div class="rodape">M1 - VALIDADE | M2 - EMBALAGEM ( SEM VACUO, RASGADO, AMASSADO, VIOLADO NO ATO DA ENTREGA ) | M3 - QUALIDADE ( COLORAÇÃO, CHEIRO, MOFO )</div>' +
-
     '</div>';
 }
 
 /* =========================
-   REGISTRAR BUSCA — LOJA
+   BUSCAS
 ========================= */
 
 function registrarBuscaLoja(input) {
@@ -333,7 +335,6 @@ function registrarBuscaLoja(input) {
     var modelo = me.closest(".modelo");
     var nomeEl = modelo ? modelo.querySelector(".nome-loja") : null;
 
-    // Código exato: preenche e fecha
     if (lojas[texto.trim()]) {
       if (nomeEl) nomeEl.value = lojas[texto.trim()];
       fecharTodosDropdowns();
@@ -349,16 +350,9 @@ function registrarBuscaLoja(input) {
   });
 
   input.addEventListener("focus", function() {
-    if (this.value.length >= 1) {
-      var ev = new Event("input");
-      this.dispatchEvent(ev);
-    }
+    if (this.value.length >= 1) this.dispatchEvent(new Event("input"));
   });
 }
-
-/* =========================
-   REGISTRAR BUSCA — PRODUTO
-========================= */
 
 function registrarBuscaProduto(input) {
   input.addEventListener("input", function() {
@@ -367,7 +361,6 @@ function registrarBuscaProduto(input) {
     var linha = me.closest("tr");
     var descEl = linha ? linha.querySelector(".descricao-produto") : null;
 
-    // Código exato
     if (produtos[texto.trim()]) {
       if (descEl) descEl.value = produtos[texto.trim()];
       fecharTodosDropdowns();
@@ -385,24 +378,20 @@ function registrarBuscaProduto(input) {
   });
 
   input.addEventListener("focus", function() {
-    if (this.value.length >= 1) {
-      var ev = new Event("input");
-      this.dispatchEvent(ev);
-    }
+    if (this.value.length >= 1) this.dispatchEvent(new Event("input"));
   });
 }
 
 /* =========================
-   ADICIONAR FORMULÁRIO
+   FORMULÁRIOS
 ========================= */
 
 function adicionarFormulario() {
   totalFormularios++;
-  var areaPDF = document.getElementById("areaPDF");
   var div = document.createElement("div");
   div.innerHTML = criarHTMLFormulario(totalFormularios);
   var modelo = div.firstChild;
-  areaPDF.appendChild(modelo);
+  document.getElementById("areaPDF").appendChild(modelo);
   iniciarEventosModelo(modelo);
   calcularTudo();
 }
@@ -413,46 +402,22 @@ function removerFormulario(botao) {
   salvarDados();
 }
 
-/* =========================
-   EVENTOS — por modelo
-========================= */
-
 function iniciarEventosModelo(modelo) {
+  modelo.querySelectorAll(".campo-loja").forEach(registrarBuscaLoja);
+  modelo.querySelectorAll(".campo-produto").forEach(registrarBuscaProduto);
 
-  // Lojas
-  var camposLoja = modelo.querySelectorAll(".campo-loja");
-  for (var i = 0; i < camposLoja.length; i++) {
-    registrarBuscaLoja(camposLoja[i]);
-  }
+  modelo.querySelectorAll(".qtde, .valor").forEach(function(el) {
+    el.addEventListener("input", function() { calcularTudo(); salvarDados(); });
+  });
 
-  // Produtos
-  var camposProduto = modelo.querySelectorAll(".campo-produto");
-  for (var j = 0; j < camposProduto.length; j++) {
-    registrarBuscaProduto(camposProduto[j]);
-  }
+  modelo.querySelectorAll(".data-br").forEach(function(el) {
+    el.addEventListener("input", function() { formatarDataBR(this); salvarDados(); });
+  });
 
-  // Qtde / Valor
-  var qtdes = modelo.querySelectorAll(".qtde, .valor");
-  for (var k = 0; k < qtdes.length; k++) {
-    (function(el) {
-      el.addEventListener("input", function() { calcularTudo(); salvarDados(); });
-    })(qtdes[k]);
-  }
-
-  // Data BR
-  var datas = modelo.querySelectorAll(".data-br");
-  for (var m = 0; m < datas.length; m++) {
-    (function(el) {
-      el.addEventListener("input", function() { formatarDataBR(this); salvarDados(); });
-    })(datas[m]);
-  }
-
-  // Data vendedora
-  var datasVend = modelo.querySelectorAll(".data-vendedora");
-  for (var n = 0; n < datasVend.length; n++) {
-    datasVend[n].type = "date";
-    datasVend[n].addEventListener("change", salvarDados);
-  }
+  modelo.querySelectorAll(".data-vendedora").forEach(function(el) {
+    el.type = "date";
+    el.addEventListener("change", salvarDados);
+  });
 }
 
 /* =========================
@@ -460,30 +425,25 @@ function iniciarEventosModelo(modelo) {
 ========================= */
 
 function calcularTudo() {
-  var modelos = document.querySelectorAll(".modelo");
-  for (var i = 0; i < modelos.length; i++) {
-    var modelo = modelos[i];
+  document.querySelectorAll(".modelo").forEach(function(modelo) {
     var totalGeral = 0;
-    var linhas = modelo.querySelectorAll("tbody tr:not(:last-child)");
-    for (var j = 0; j < linhas.length; j++) {
-      var qtde = linhas[j].querySelector(".qtde");
-      var valor = linhas[j].querySelector(".valor");
-      var total = linhas[j].querySelector(".total-produto");
+    modelo.querySelectorAll("tbody tr:not(:last-child)").forEach(function(linha) {
+      var qtde = linha.querySelector(".qtde");
+      var valor = linha.querySelector(".valor");
+      var total = linha.querySelector(".total-produto");
       if (qtde && valor && total) {
-        var resultado = (parseFloat(qtde.value) || 0) * (parseFloat(valor.value) || 0);
-        total.textContent = "R$ " + resultado.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        totalGeral += resultado;
+        var r = (parseFloat(qtde.value) || 0) * (parseFloat(valor.value) || 0);
+        total.textContent = "R$ " + r.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        totalGeral += r;
       }
-    }
-    var totalFinal = modelo.querySelector(".valor-total");
-    if (totalFinal) {
-      totalFinal.textContent = "R$ " + totalGeral.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    }
-  }
+    });
+    var tf = modelo.querySelector(".valor-total");
+    if (tf) tf.textContent = "R$ " + totalGeral.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  });
 }
 
 /* =========================
-   ADICIONAR LINHA
+   ADICIONAR / REMOVER LINHA
 ========================= */
 
 function adicionarLinha(botao) {
@@ -504,21 +464,13 @@ function adicionarLinha(botao) {
 
   tabela.insertBefore(linha, tabela.querySelector("tr:last-child"));
 
-  var novoProduto = linha.querySelector(".campo-produto");
-  var novaQtde = linha.querySelector(".qtde");
-  var novoValor = linha.querySelector(".valor");
-
-  registrarBuscaProduto(novoProduto);
-  novaQtde.addEventListener("input", function() { calcularTudo(); salvarDados(); });
-  novoValor.addEventListener("input", function() { calcularTudo(); salvarDados(); });
+  registrarBuscaProduto(linha.querySelector(".campo-produto"));
+  linha.querySelector(".qtde").addEventListener("input", function() { calcularTudo(); salvarDados(); });
+  linha.querySelector(".valor").addEventListener("input", function() { calcularTudo(); salvarDados(); });
 
   calcularTudo();
-  novoProduto.focus();
+  linha.querySelector(".campo-produto").focus();
 }
-
-/* =========================
-   REMOVER LINHA
-========================= */
 
 function removerLinha(botao) {
   var linha = botao.closest("tr");
@@ -534,14 +486,9 @@ function removerLinha(botao) {
   }
 }
 
-/* =========================
-   LIMPAR FORMULÁRIO
-========================= */
-
 function limparFormulario(botao) {
   if (!confirm("Limpar todos os dados deste formulário?")) return;
   var modelo = botao.closest(".modelo");
-
   modelo.querySelectorAll(".dados input").forEach(function(el) { el.value = ""; });
 
   var tabela = modelo.querySelector(".tabelaProdutos");
@@ -562,10 +509,6 @@ function limparFormulario(botao) {
   salvarDados();
 }
 
-/* =========================
-   FORMATAR DATA
-========================= */
-
 function formatarDataBR(input) {
   var v = input.value.replace(/\D/g, "").slice(0, 8);
   if (v.length > 4) v = v.slice(0, 2) + "-" + v.slice(2, 4) + "-" + v.slice(4);
@@ -574,7 +517,7 @@ function formatarDataBR(input) {
 }
 
 /* =========================
-   SALVAR
+   SALVAR / RESTAURAR
 ========================= */
 
 function salvarDados() {
@@ -608,10 +551,6 @@ function salvarDados() {
     localStorage.setItem("controle_recolhimento", JSON.stringify(dados));
   } catch(e) { console.log("Erro salvar:", e); }
 }
-
-/* =========================
-   RESTAURAR
-========================= */
 
 function restaurarDados() {
   try {
@@ -647,7 +586,6 @@ function restaurarDados() {
       if (obj.produtos && obj.produtos.length) {
         var tabela = modelo.querySelector(".tabelaProdutos");
         tabela.querySelectorAll("tbody tr:not(:last-child)").forEach(function(l) { l.remove(); });
-
         obj.produtos.forEach(function(prod) {
           var botao = modelo.querySelector(".btn-add");
           if (!botao) return;
@@ -675,12 +613,47 @@ function restaurarDados() {
 }
 
 /* =========================
-   GERAR PDF
+   NOME DO PDF: Rec. - código - loja - dd-mm
+========================= */
+
+function nomePDF() {
+  var modelo = document.querySelector(".modelo");
+  if (!modelo) return "Rec.-" + obterDataAtual();
+
+  var codigoEl = modelo.querySelector(".campo-loja");
+  var nomeEl = modelo.querySelector(".nome-loja");
+  var dataEl = modelo.querySelector(".data-vendedora");  // DATA DA ASSINATURA DA VENDEDORA
+
+  var codigo = codigoEl && codigoEl.value ? codigoEl.value.trim() : "";
+  var nome = nomeEl && nomeEl.value ? nomeEl.value.trim() : "";
+  var data = dataEl && dataEl.value ? dataEl.value.trim() : obterDataAtual();
+
+  // Formata a data (YYYY-MM-DD para DD-MM)
+  var partes = data.split("-");
+  var dataFormatada = partes.length >= 2 ? partes[2] + "-" + partes[1] : data;
+
+  // Limpa caracteres inválidos para nome de arquivo
+  var nomeBase = "Rec.";
+  if (codigo) nomeBase += " - " + codigo.replace(/[\/\\:*?"<>|]/g, "");
+  if (nome) nomeBase += " - " + nome.replace(/[\/\\:*?"<>|]/g, "").substring(0, 30);
+  if (dataFormatada) nomeBase += " - " + dataFormatada;
+
+  return nomeBase;
+}
+
+/* =========================
+   GERAR PDF - CORRIGIDO
 ========================= */
 
 function gerarPDF() {
   var elemento = document.getElementById("areaPDF");
   if (!elemento) { alert("Área do PDF não encontrada!"); return; }
+
+  var modelos = elemento.querySelectorAll(".modelo");
+  if (modelos.length === 0) {
+    alert("Nenhum formulário para gerar PDF!");
+    return;
+  }
 
   fecharTodosDropdowns();
 
@@ -688,44 +661,82 @@ function gerarPDF() {
   var textoOriginal = btnPDF ? btnPDF.textContent : "GERAR PDF";
   if (btnPDF) { btnPDF.textContent = "⏳ GERANDO..."; btnPDF.disabled = true; }
 
+  // Clona o elemento
   var clone = elemento.cloneNode(true);
+  
+  // Remove botões
   clone.querySelectorAll("button").forEach(function(b) { b.remove(); });
   clone.querySelectorAll(".dropdown-lista").forEach(function(d) { d.remove(); });
 
+  // Formata data da vendedora
   clone.querySelectorAll(".data-vendedora").forEach(function(el) {
     if (el.value) {
       var p = el.value.split("-");
       var span = document.createElement("span");
-      span.textContent = p[2] + "/" + p[1] + "/" + p[0];
-      span.style.cssText = "font-size:7px;text-align:center;display:inline-block;width:70px;border-bottom:1px solid #000;padding:2px 0;";
+      span.textContent = (p[2] || "") + "/" + (p[1] || "") + "/" + (p[0] || "");
+      span.style.cssText = "font-size:8px;text-align:center;display:inline-block;width:80px;border-bottom:1px solid #000;padding:2px 0;";
       el.parentNode.replaceChild(span, el);
     }
   });
 
+  // Prepara o container
   var tempDiv = document.createElement("div");
-  tempDiv.style.cssText = "position:absolute;left:-9999px;top:0;width:210mm;background:#fff;padding:10px;";
+  tempDiv.style.cssText = "position:fixed;left:-9999px;top:0;width:794px;background:#fff;overflow:visible;z-index:99999;";
   tempDiv.appendChild(clone);
   document.body.appendChild(tempDiv);
 
-  html2pdf().set({
+  // Estiliza o clone para o PDF
+  clone.style.cssText = "width:100% !important; max-width:794px !important; margin:0 auto; padding:10px; background:#fff; box-sizing:border-box;";
+  
+  clone.querySelectorAll(".modelo").forEach(function(m) {
+    m.style.cssText = "width:100% !important; max-width:175mm !important; margin:0 auto 10px auto; background:#fff; border:1px solid #000; padding:10px; overflow:hidden; page-break-inside:avoid;";
+  });
+
+  // Configuração do PDF
+  var opcoes = {
     margin: [5, 5, 5, 5],
-    filename: "controle-recolhimento-" + obterDataAtual() + ".pdf",
-    image: { type: "jpeg", quality: 1 },
-    html2canvas: { scale: 2, useCORS: true, scrollY: 0, logging: false },
-    jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+    filename: nomePDF() + ".pdf",
+    image: { type: "jpeg", quality: 0.98 },
+    html2canvas: {
+      scale: 2,
+      useCORS: true,
+      scrollX: 0,
+      scrollY: 0,
+      width: 794,
+      height: clone.scrollHeight,
+      logging: true,
+      allowTaint: true
+    },
+    jsPDF: { 
+      unit: "mm", 
+      format: "a4", 
+      orientation: "portrait"
+    },
     pagebreak: { mode: ["avoid-all", "css", "legacy"] }
-  }).from(clone).save()
+  };
+
+  html2pdf()
+    .set(opcoes)
+    .from(clone)
+    .save()
     .then(function() {
       document.body.removeChild(tempDiv);
       if (btnPDF) {
         btnPDF.textContent = "✅ PRONTO!";
-        setTimeout(function() { btnPDF.textContent = textoOriginal; btnPDF.disabled = false; }, 2000);
+        setTimeout(function() { 
+          btnPDF.textContent = textoOriginal; 
+          btnPDF.disabled = false; 
+        }, 2000);
       }
     })
-    .catch(function() {
+    .catch(function(err) {
+      console.error("Erro ao gerar PDF:", err);
       document.body.removeChild(tempDiv);
-      alert("Erro ao gerar PDF.");
-      if (btnPDF) { btnPDF.textContent = textoOriginal; btnPDF.disabled = false; }
+      alert("Erro ao gerar PDF: " + err.message);
+      if (btnPDF) { 
+        btnPDF.textContent = textoOriginal; 
+        btnPDF.disabled = false; 
+      }
     });
 }
 
@@ -734,10 +745,7 @@ function obterDataAtual() {
   return String(d.getDate()).padStart(2,"0") + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + d.getFullYear();
 }
 
-/* =========================
-   GLOBAIS
-========================= */
-
+/* GLOBAIS */
 window.calcularTudo = calcularTudo;
 window.adicionarLinha = adicionarLinha;
 window.removerLinha = removerLinha;
