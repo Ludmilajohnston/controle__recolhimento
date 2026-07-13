@@ -585,12 +585,13 @@ function restaurarDados() {
 
       if (obj.produtos && obj.produtos.length) {
         var tabela = modelo.querySelector(".tabelaProdutos");
-        tabela.querySelectorAll("tbody tr:not(:last-child)").forEach(function(l) { l.remove(); });
+        tabela.querySelectorAll("tr:not(:last-child)").forEach(function(l) { l.remove(); });
         obj.produtos.forEach(function(prod) {
           var botao = modelo.querySelector(".btn-add");
           if (!botao) return;
           adicionarLinha(botao);
-          var nova = tabela.querySelector("tbody tr:not(:last-child):last-child");
+          var linhasProduto = tabela.querySelectorAll("tr:not(:last-child)");
+          var nova = linhasProduto[linhasProduto.length - 1];
           if (nova) {
             var cp = nova.querySelector(".campo-produto");
             if (cp) cp.value = prod.codigo || "";
