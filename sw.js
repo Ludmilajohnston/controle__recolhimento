@@ -31,6 +31,8 @@ self.addEventListener("activate", e => {
 });
 
 // ESTRATEGIA: sempre tenta a rede primeiro (pega a versão mais nova),
+// e só usa o cache se estiver offline. Assim, toda correção feita nos
+// arquivos aparece na hora, sem precisar apagar dados do navegador.
 self.addEventListener("fetch", e => {
   e.respondWith(
     fetch(e.request)
