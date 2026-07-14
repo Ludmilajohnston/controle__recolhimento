@@ -119,7 +119,7 @@ label {
 .produtos col:nth-child(5) { width: 10%; }
 .produtos col:nth-child(6) { width: 8%; }
 .produtos col:nth-child(7) { width: 10%; }
-.produtos col:nth-child(8) { width: 12%; }
+.produtos col:nth-child(8) { width: 10%; }
 
 /* CABEÇALHO */
 
@@ -592,13 +592,15 @@ label {
     font-size: 16px !important; /* evita zoom no iOS */
   }
 
-  /* Evita o zoom automático do iOS/Android ao tocar nos campos de
-     busca (código loja e código produto). O navegador só aplica
-     zoom se o font-size do campo for menor que 16px NO MOMENTO do
-     foco, então aumentamos apenas enquanto o campo está focado -
-     o layout compacto do PDF não é afetado, pois nada fica em
-     estado :focus durante a geração do PDF. */
-  .campo-busca:focus {
+  /* Evita o zoom automático do iOS/Android ao tocar em QUALQUER campo
+     do formulário. O navegador só aplica zoom se o font-size do campo
+     for menor que 16px NO MOMENTO do foco, então aumentamos todos os
+     campos apenas enquanto estão focados - o layout compacto do
+     formulário e do PDF não é afetado, pois nada fica em estado
+     :focus durante a geração do PDF. */
+  input:focus,
+  select:focus,
+  textarea:focus {
     font-size: 16px !important;
   }
 }
